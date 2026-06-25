@@ -1,0 +1,29 @@
+Etapa 2 - parser incremental
+[OK]   valid ping -> 1
+[OK]   parser errors -> 0
+[OK]   message type -> 0
+[OK]   message payload -> ping
+[OK]   noise before frame -> 1
+[OK]   parser errors -> 1
+[OK]   message type -> 0
+[OK]   message payload -> ping
+[OK]   CRLF frame -> 1
+[OK]   parser errors -> 0
+[OK]   message type -> 0
+[OK]   message payload -> ping
+[OK]   resync at @ -> 1
+[OK]   parser errors -> 1
+[OK]   message type -> 0
+[OK]   message payload -> ping
+[OK]   valid ACK -> 1
+[OK]   parser errors -> 0
+[OK]   message type -> 4
+[OK]   message payload -> pong=1
+[OK]   bad checksum ready -> 0
+[OK]   bad checksum errors -> 1
+[OK]   two frames ready -> 2
+[OK]   two frames errors -> 0
+[OK]   two frames last payload -> led=on
+[OK]   bad length ready -> 0
+[OK]   bad length errors -> 1
+Resultado etapa 2: 27 OK, 0 FAIL

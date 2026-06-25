@@ -1,0 +1,16 @@
+TX @08:CMD:ping:52
+RX @0A:ACK:pong=1:22
+TX @0A:CMD:led=on:6A
+RX @0A:ACK:cmd=ok:6B
+TX @0B:CMD:led=off:07
+RX @0A:ACK:cmd=ok:6B
+TX @0E:CMD:led=toggle:7D
+RX @0A:ACK:cmd=ok:6B
+TX @0B:CMD:status?:13
+RX @2D:STS:rx=28,ae=2,irq=645,pb=645,pm=28,pe=1,qd=0:47
+TX @10:CMD:comando_raro:7F
+RX @14:ERR:code=unknown_cmd:2D
+TX @0B:DAT:temp=25:15
+RX @18:ERR:code=unexpected_type:3E
+TX @0@08:CMD:ping:52
+RX @0A:ACK:pong=1:22

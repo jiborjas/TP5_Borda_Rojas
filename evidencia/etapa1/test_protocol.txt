@@ -1,0 +1,33 @@
+Etapa 1 - framing, checksum y decode
+[OK]   hex_char_to_nibble('0') -> 0
+[OK]   hex_char_to_nibble('9') -> 9
+[OK]   hex_char_to_nibble('A') -> 10
+[OK]   hex_char_to_nibble('F') -> 15
+[OK]   hex_char_to_nibble('a') -> -1
+[OK]   checksum 08:CMD:ping -> 0x52
+[OK]   checksum 0E:CMD:led=toggle -> 0x7D
+[OK]   protocol_encode length -> 16
+[OK]   protocol_encode frame -> @08:CMD:ping:52
+[OK]   protocol_encode length -> 18
+[OK]   protocol_encode frame -> @0A:CMD:led=on:6A
+[OK]   protocol_encode length -> 19
+[OK]   protocol_encode frame -> @0B:CMD:led=off:07
+[OK]   protocol_encode length -> 22
+[OK]   protocol_encode frame -> @0E:CMD:led=toggle:7D
+[OK]   protocol_encode length -> 19
+[OK]   protocol_encode frame -> @0B:CMD:status?:13
+[OK]   protocol_encode length -> 18
+[OK]   protocol_encode frame -> @0A:ACK:pong=1:22
+[OK]   protocol_encode length -> 18
+[OK]   protocol_encode frame -> @0A:ACK:cmd=ok:6B
+[OK]   protocol_encode length -> 28
+[OK]   protocol_encode frame -> @14:ERR:code=unknown_cmd:2D
+[OK]   validate ping ok -> 0
+[OK]   validate bad checksum -> -1
+[OK]   validate bad length -> -1
+[OK]   validate bad type -> -1
+[OK]   protocol_message_set CMD ping -> 1
+[OK]   protocol_encode_frame ok -> 1
+[OK]   protocol_encode_frame length -> 16
+[OK]   protocol_encode_frame text -> @08:CMD:ping:52
+Resultado etapa 1: 31 OK, 0 FAIL
