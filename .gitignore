@@ -1,0 +1,29 @@
+# Build outputs
+firmware/bin/
+tests/host/test_protocol
+tests/host/test_parser
+firmware/third_party/libopencm3/lib/**/*.o
+firmware/third_party/libopencm3/lib/**/*.d
+firmware/third_party/libopencm3/lib/libopencm3_stm32f1.a
+firmware/third_party/libopencm3/lib/**/vector_nvic.c
+*.o
+*.elf
+*.hex
+*.bin
+*.map
+*.lst
+
+# Python/cache leftovers
+__pycache__/
+*.pyc
+tools/__pycache__/
+
+# Editor / OS noise
+.vscode/*
+!.vscode/c_cpp_properties.json
+*~
+.DS_Store
+Thumbs.db
+*.Zone.Identifier
+
+# Keep firmware/third_party tracked: TP5 must remain autocontenido.
