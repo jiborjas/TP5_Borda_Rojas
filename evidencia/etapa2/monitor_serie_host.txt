@@ -1,0 +1,31 @@
+Etapa 2 - Evidencia host equivalente a monitor serie
+
+Estas tramas son las que se deben ver en un monitor serie a 115200 8N1.
+La accion del LED se verifica fisicamente en PC13 al probar en la Blue Pill.
+
+ping:
+  TX @08:CMD:ping:52\n
+  RX @0A:ACK:pong=1:22\n
+
+led=on:
+  TX @0A:CMD:led=on:6A\n
+  RX @0A:ACK:cmd=ok:6B\n
+  LED esperado: encendido (PC13 en bajo)
+
+led=off:
+  TX @0B:CMD:led=off:07\n
+  RX @0A:ACK:cmd=ok:6B\n
+  LED esperado: apagado (PC13 en alto)
+
+led=toggle:
+  TX @0E:CMD:led=toggle:7D\n
+  RX @0A:ACK:cmd=ok:6B\n
+  LED esperado: conmuta de estado
+
+Basura antes de trama valida:
+  RX parser: xyz@08:CMD:ping:52\n
+  Resultado esperado: entrega CMD:ping; ignora x, y, z.
+
+Dos tramas pegadas:
+  RX parser: @08:CMD:ping:52\n@0A:CMD:led=on:6A\n
+  Resultado esperado: entrega CMD:ping y luego CMD:led=on.

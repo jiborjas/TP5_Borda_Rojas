@@ -15,4 +15,13 @@
 #define PROTOCOL_MAX_PAYLOAD_LENGTH   48U
 #define PROTOCOL_MAX_FRAME_LENGTH     64U
 
+/*
+ * El protocolo define '\n' como fin de trama. Algunos monitores serie, sin
+ * embargo, necesitan ver "\r\n" para mostrar cada linea desde la columna 0.
+ * Si esta opcion esta activa, la tarea UART TX cambia el ultimo '\n' por
+ * "\r\n" solo al transmitir por UART. El encoder del protocolo sigue generando
+ * tramas puras con '\n'.
+ */
+#define UART_TX_CRLF_FOR_TERMINAL      1U
+
 #endif

@@ -1,0 +1,52 @@
+Etapa 1 - Tramas de referencia
+
+Las siguientes tramas fueron tomadas de la consigna y se usan para validar
+protocol_encode_frame().
+
+CMD ping:
+  body: CMD:ping
+  LL: 08
+  checksum sobre "08:CMD:ping": 52
+  frame: @08:CMD:ping:52\n
+
+CMD led=on:
+  body: CMD:led=on
+  LL: 0A
+  checksum sobre "0A:CMD:led=on": 6A
+  frame: @0A:CMD:led=on:6A\n
+
+CMD led=off:
+  body: CMD:led=off
+  LL: 0B
+  checksum sobre "0B:CMD:led=off": 07
+  frame: @0B:CMD:led=off:07\n
+
+CMD led=toggle:
+  body: CMD:led=toggle
+  LL: 0E
+  checksum sobre "0E:CMD:led=toggle": 7D
+  frame: @0E:CMD:led=toggle:7D\n
+
+CMD status?:
+  body: CMD:status?
+  LL: 0B
+  checksum sobre "0B:CMD:status?": 13
+  frame: @0B:CMD:status?:13\n
+
+ACK pong=1:
+  body: ACK:pong=1
+  LL: 0A
+  checksum sobre "0A:ACK:pong=1": 22
+  frame: @0A:ACK:pong=1:22\n
+
+ACK cmd=ok:
+  body: ACK:cmd=ok
+  LL: 0A
+  checksum sobre "0A:ACK:cmd=ok": 6B
+  frame: @0A:ACK:cmd=ok:6B\n
+
+ERR code=unknown_cmd:
+  body: ERR:code=unknown_cmd
+  LL: 14
+  checksum sobre "14:ERR:code=unknown_cmd": 2D
+  frame: @14:ERR:code=unknown_cmd:2D\n

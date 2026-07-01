@@ -1,0 +1,21 @@
+Etapa 3 - Evidencia host equivalente a monitor serie
+
+status? con contadores reproducibles del test host:
+  TX @0B:CMD:status?:13\n
+  RX @28:STS:rx=3,ae=1,irq=7,pb=11,pm=5,pe=2,qd=1:0B\n
+
+Comando desconocido:
+  TX @0D:CMD:no_existe:76\n
+  RX @14:ERR:code=unknown_cmd:2D\n
+
+Tipo inesperado:
+  TX @0A:ACK:cmd=ok:6B\n
+  RX ERR:code=unexpected_type
+  Nota: el checksum exacto se calcula al codificar la respuesta en firmware.
+
+Resincronizacion caso B:
+  RX parser: @0@08:CMD:ping:52\n
+  Resultado esperado:
+    - se detecta 1 error por '@' donde se esperaba digito hexadecimal;
+    - se reutiliza esa '@' como nuevo inicio;
+    - se entrega 1 mensaje valido: CMD:ping.

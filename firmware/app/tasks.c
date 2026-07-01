@@ -30,6 +30,11 @@ static void task_uart_rx(void *args)
 
     while (1) {
         if (xQueueReceive(g_uart_rx_isr_queue, &byte, portMAX_DELAY) == pdPASS) {
+            /*
+             * La ISR de UART debe ser muy corta: solo deja bytes en una cola.
+             * Esta tarea toma esos bytes y los pasa a la cola del parser, ya en
+             * contexto de tarea FreeRTOS.
+             */
             xQueueSend(g_parser_input_queue, &byte, portMAX_DELAY);
         }
     }
@@ -53,6 +58,11 @@ static void task_parser(void *args)
         g_parser_byte_count++;
         result = parser_consume_byte(&parser, byte, &message);
         if (result == PARSER_RESULT_MESSAGE_READY) {
+            /*
+             * Cuando el parser junta una trama completa y valida, recien ahi se
+             * entrega un protocol_message_t a la aplicacion. La app no sabe ni
+             * necesita saber de bytes sueltos.
+             */
             g_parser_message_count++;
             xQueueSend(g_app_queue, &message, portMAX_DELAY);
         } else if (result == PARSER_RESULT_ERROR) {
@@ -101,6 +111,10 @@ static void task_telemetry(void *args)
         }
 
         if ((counter % (STATUS_PERIOD_MS / TELEMETRY_PERIOD_MS)) == 0U) {
+            /*
+             * La base original tambien puede emitir estado periodico. Para el
+             * TP5, lo importante es que status? construye el mismo tipo STS.
+             */
             app_build_status_message(&message);
             xQueueSend(g_uart_tx_queue, &message, portMAX_DELAY);
         }
@@ -135,6 +149,23 @@ static void task_uart_tx(void *args)
         }
 
         if (protocol_encode_frame(&message, frame, sizeof(frame), &frame_length)) {
+            /*
+             * Todas las respuestas salen por el mismo camino: mensaje en cola,
+             * encode del protocolo y bytes por USART1.
+             *
+             * Para que la salida no se vea "en diagonal" en monitores serie
+             * simples, enviamos "\r\n" en lugar del ultimo '\n'. El protocolo
+             * sigue siendo compatible porque el parser ignora '\r'.
+             */
+#if UART_TX_CRLF_FOR_TERMINAL
+            if ((frame_length > 0U) && (frame[frame_length - 1U] == '\n')) {
+                const uint8_t crlf[] = {'\r', '\n'};
+
+                uart_comm_send_bytes((const uint8_t *) frame, frame_length - 1U);
+                uart_comm_send_bytes(crlf, sizeof(crlf));
+                continue;
+            }
+#endif
             uart_comm_send_bytes((const uint8_t *) frame, frame_length);
         }
     }

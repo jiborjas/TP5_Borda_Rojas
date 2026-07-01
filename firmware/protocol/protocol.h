@@ -32,8 +32,10 @@ typedef struct {
 
 bool protocol_message_set(protocol_message_t *message, protocol_type_t type, const char *payload);
 bool protocol_encode_frame(const protocol_message_t *message, char *frame, size_t frame_size, size_t *frame_length);
+bool protocol_validate_frame(const char *frame, protocol_message_t *message);
 bool protocol_decode_body(const char *body, uint8_t body_length, protocol_message_t *message);
 uint8_t protocol_compute_checksum(const char *data, size_t length);
+int8_t hex_char_to_nibble(char c);
 const char *protocol_type_to_text(protocol_type_t type);
 protocol_type_t protocol_type_from_text(const char *text);
 

@@ -1,0 +1,15 @@
+Comando:
+  cd tests/host
+  make clean test
+
+Salida relevante:
+  ./test_parser
+  All parser tests passed
+  ./test_app
+  All app tests passed
+
+Casos de Etapa 3 cubiertos:
+  - status? responde con STS y payload rx,ae,irq,pb,pm,pe,qd
+  - comando desconocido responde ERR:code=unknown_cmd
+  - tipo inesperado responde ERR:code=unexpected_type
+  - @0@08:CMD:ping:52\n entrega CMD:ping luego de resincronizar

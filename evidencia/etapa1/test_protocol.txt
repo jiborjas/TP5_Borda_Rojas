@@ -1,0 +1,18 @@
+Comando:
+  cd tests/host
+  make test
+
+Salida:
+  rm -f test_protocol
+  cc -std=c11 -Wall -Wextra -Werror -I../../firmware test_protocol.c ../../firmware/protocol/protocol.c -o test_protocol
+  ./test_protocol
+  All protocol tests passed
+
+Casos cubiertos por el test:
+  - checksums de referencia: ping, led=on, led=toggle, ACK cmd=ok
+  - encode de frames completos: ping, led=on, led=off, led=toggle, status?, pong=1, cmd=ok, unknown_cmd
+  - decode de body valido: CMD:ping
+  - rechazo de body mal formado o tipo desconocido
+  - validacion de frame completo valido: @08:CMD:ping:52\n
+  - rechazo de frame con checksum corrupto: @08:CMD:ping:53\n
+  - conversion hexadecimal con hex_char_to_nibble()

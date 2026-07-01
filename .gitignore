@@ -2,10 +2,13 @@
 firmware/bin/
 tests/host/test_protocol
 tests/host/test_parser
+tests/host/test_app
 firmware/third_party/libopencm3/lib/**/*.o
 firmware/third_party/libopencm3/lib/**/*.d
-firmware/third_party/libopencm3/lib/libopencm3_stm32f1.a
+firmware/third_party/libopencm3/lib/*.a
 firmware/third_party/libopencm3/lib/**/vector_nvic.c
+firmware/third_party/libopencm3/include/**/nvic.h
+firmware/third_party/libopencm3/include/libopencmsis/
 *.o
 *.elf
 *.hex

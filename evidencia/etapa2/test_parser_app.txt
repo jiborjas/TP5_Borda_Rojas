@@ -1,0 +1,16 @@
+Comando:
+  cd tests/host
+  make clean test
+
+Salida relevante:
+  ./test_parser
+  All parser tests passed
+  ./test_app
+  All app tests passed
+
+Casos de Etapa 2 cubiertos:
+  - parser incremental entrega CMD:ping para @08:CMD:ping:52\n
+  - parser ignora basura previa en xyz@08:CMD:ping:52\n
+  - parser acepta dos tramas pegadas sin delay
+  - app responde ACK:pong=1 para ping
+  - app responde ACK:cmd=ok y genera comando de actuador para led=on
