@@ -1,5 +1,5 @@
 # Proyecto base STM32F103C8T6 con libopencm3 + FreeRTOS
-PROJECT = tp5_borda_rojas
+PROJECT = main
 TARGET = $(PROJECT).elf
 BUILD_DIR = bin
 APP_CONFIG_HEADER = config/app_config.h
@@ -21,12 +21,6 @@ CDEFS = -DSTM32F1
 # Compilador
 CC = arm-none-eabi-gcc
 OBJCOPY = arm-none-eabi-objcopy
-OBJDUMP = arm-none-eabi-objdump
-SIZE = arm-none-eabi-size
-OPENOCD ?= openocd
-GDB ?= gdb-multiarch
-OPENOCD_INTERFACE ?= interface/stlink.cfg
-OPENOCD_TARGET ?= target/stm32f1x.cfg
 
 INCLUDES  = -I$(LIBOPENCM3_DIR)/include
 INCLUDES += -I$(COMMON_DIR)
@@ -68,8 +62,8 @@ LOCAL_OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(LOCAL_SRC))
 FREERTOS_OBJ = $(patsubst $(FREERTOS_DIR)/%.c,$(BUILD_DIR)/freertos/%.o,$(FREERTOS_SRC))
 OBJ = $(LOCAL_OBJ) $(FREERTOS_OBJ)
 
-.PHONY: all clean rebuild flash erase size list disasm artifacts help check-deps test-host
-.PHONY: openocd gdb bin hex
+.PHONY: all clean flash size help check-deps
+.PHONY: openocd gdb
 
 all: check-deps $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f1.a $(BUILD_DIR)/$(TARGET)
 
@@ -85,16 +79,6 @@ $(BUILD_DIR)/$(TARGET): $(OBJ) $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f1.a
 	$(OBJCOPY) -O ihex $@ $(BUILD_DIR)/$(PROJECT).hex
 	$(OBJCOPY) -O binary $@ $(BUILD_DIR)/$(PROJECT).bin
 
-hex: $(BUILD_DIR)/$(PROJECT).hex
-
-bin: $(BUILD_DIR)/$(PROJECT).bin
-
-$(BUILD_DIR)/$(PROJECT).hex: $(BUILD_DIR)/$(TARGET)
-	$(OBJCOPY) -O ihex $< $@
-
-$(BUILD_DIR)/$(PROJECT).bin: $(BUILD_DIR)/$(TARGET)
-	$(OBJCOPY) -O binary $< $@
-
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -107,48 +91,26 @@ $(LIBOPENCM3_DIR)/lib/libopencm3_stm32f1.a:
 	$(MAKE) -C $(LIBOPENCM3_DIR)
 
 flash: $(BUILD_DIR)/$(TARGET)
-	$(OPENOCD) -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) -c "program $< verify reset exit"
-
-erase:
-	$(OPENOCD) -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET) -c "init; reset halt; stm32f1x mass_erase 0; reset; exit"
+	openocd -f interface/stlink.cfg -f target/stm32f1x.cfg -c "program $< verify reset exit"
 
 openocd:
-	$(OPENOCD) -f $(OPENOCD_INTERFACE) -f $(OPENOCD_TARGET)
+	openocd -f interface/stlink.cfg -f target/stm32f1x.cfg
 
 gdb: $(BUILD_DIR)/$(TARGET)
-	$(GDB) $< -ex "target remote localhost:3333"
+	gdb-multiarch $< -ex "target remote localhost:3333"
 
 size: $(BUILD_DIR)/$(TARGET)
-	$(SIZE) $<
-
-list: $(BUILD_DIR)/$(TARGET)
-	$(OBJDUMP) -S $< > $(BUILD_DIR)/$(PROJECT).lst
-
-disasm: list
-
-artifacts: all size list
-
-test-host:
-	$(MAKE) -C ../tests/host run
+	arm-none-eabi-size $<
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-rebuild: clean all
-
 help:
 	@echo "Comandos disponibles:"
-	@echo "  make            -> Compila y genera .elf, .hex y .bin"
-	@echo "  make hex        -> Genera/actualiza el archivo Intel HEX"
-	@echo "  make bin        -> Genera/actualiza el binario crudo"
-	@echo "  make flash      -> Programa la Blue Pill con OpenOCD/ST-Link"
-	@echo "  make erase      -> Borra la flash completa del STM32F103"
-	@echo "  make openocd    -> Inicia servidor OpenOCD"
-	@echo "  make gdb        -> Abre GDB y conecta a localhost:3333"
-	@echo "  make size       -> Muestra uso de Flash/RAM"
-	@echo "  make list       -> Genera listado con desensamblado en bin/"
-	@echo "  make artifacts  -> Compila, muestra size y genera .lst"
-	@echo "  make test-host  -> Corre tests de protocolo/parser en la PC"
-	@echo "  make clean      -> Borra archivos generados"
-	@echo "  make rebuild    -> Limpia y recompila"
-	@echo "  make help       -> Muestra esta ayuda"
+	@echo "  make           -> Compila el firmware"
+	@echo "  make flash     -> Flashea el binario via OpenOCD"
+	@echo "  make gdb       -> Conecta GDB al target"
+	@echo "  make openocd   -> Lanza el servidor OpenOCD"
+	@echo "  make size      -> Muestra el uso de memoria"
+	@echo "  make clean     -> Limpia la carpeta bin/"
+	@echo "  make help      -> Muestra esta ayuda"

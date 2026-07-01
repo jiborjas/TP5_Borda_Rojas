@@ -7,25 +7,13 @@
 
 #include "../config/app_config.h"
 
-/* Marca de sincronismo: el parser descarta ruido hasta encontrar este byte. */
 #define PROTOCOL_START_CHAR      '@'
-
-/* Fin de trama usado por el protocolo de la catedra. */
 #define PROTOCOL_END_CHAR        '\n'
-
-/* Separador entre longitud, cuerpo y checksum. */
 #define PROTOCOL_SEPARATOR_CHAR  ':'
-
-/* El campo TTT siempre ocupa tres letras ASCII. */
 #define PROTOCOL_TYPE_LENGTH     3U
-
-/* LL mide solo este cuerpo: TTT:PAYLOAD. */
 #define PROTOCOL_MAX_BODY_SIZE   (PROTOCOL_TYPE_LENGTH + 1U + PROTOCOL_MAX_PAYLOAD_LENGTH)
-
-/* Nombre corto usado por los tests y por las tareas de transmision. */
 #define PROTOCOL_MAX_FRAME_SIZE  PROTOCOL_MAX_FRAME_LENGTH
 
-/* Codificacion interna de los valores que viajan en TTT. */
 typedef enum {
     PROTOCOL_TYPE_CMD = 0,
     PROTOCOL_TYPE_DAT,
@@ -36,20 +24,12 @@ typedef enum {
     PROTOCOL_TYPE_INVALID
 } protocol_type_t;
 
-/* Resultado de una trama validada: la aplicacion trabaja con tipo + payload. */
 typedef struct {
     protocol_type_t type;
     char payload[PROTOCOL_MAX_PAYLOAD_LENGTH + 1U];
     uint8_t payload_length;
 } protocol_message_t;
 
-/* API pedida por la consigna para ejercitar framing y checksum. */
-int hex_char_to_nibble(char c);
-uint8_t protocol_checksum(const char *input, size_t len);
-int protocol_encode(const char *type_text, const char *payload, char *buf, size_t buf_size);
-int protocol_validate(const char *frame, size_t frame_len);
-
-/* API usada por la integracion FreeRTOS del firmware. */
 bool protocol_message_set(protocol_message_t *message, protocol_type_t type, const char *payload);
 bool protocol_encode_frame(const protocol_message_t *message, char *frame, size_t frame_size, size_t *frame_length);
 bool protocol_decode_body(const char *body, uint8_t body_length, protocol_message_t *message);

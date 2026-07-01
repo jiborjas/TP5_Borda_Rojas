@@ -1,8 +1,0 @@
-CMD:ping           -> @08:CMD:ping:52  espera ACK
-CMD:led=on         -> @0A:CMD:led=on:6A  espera ACK
-CMD:led=off        -> @0B:CMD:led=off:07  espera ACK
-CMD:led=toggle     -> @0E:CMD:led=toggle:7D  espera ACK
-CMD:status?        -> @0B:CMD:status?:13  espera STS
-CMD:comando_raro   -> @10:CMD:comando_raro:7F  espera ERR
-DAT:temp=25        -> @0B:DAT:temp=25:15  espera ERR
-resync             -> @0@08:CMD:ping:52  espera error + ACK
