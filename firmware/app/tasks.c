@@ -15,12 +15,10 @@
 #include "../protocol/protocol.h"
 
 /*
- * Integracion FreeRTOS.
+/* Integracion FreeRTOS.
  *
- * El flujo sigue la recomendacion de la catedra: la ISR solo encola bytes, una
- * tarea consume el flujo con el parser incremental, otra ejecuta la aplicacion y
- * una tarea dedicada serializa las respuestas por USART1. Esta separacion evita
- * parsear dentro de la interrupcion y permite contar diagnostico para status?.
+ * La ISR solo encola bytes, una tarea consume el flujo con el parser, otra
+ * ejecuta la aplicacion y una tarea dedicada serializa las respuestas por USART1.
  */
 
 /* Cola donde la ISR deja bytes apenas llegan por USART1. */
@@ -35,7 +33,7 @@ static QueueHandle_t g_app_queue;
 /* Cola de mensajes logicos que deben salir por UART. */
 static QueueHandle_t g_uart_tx_queue;
 
-/* Cola de ordenes para actuadores, por ahora el LED PC13. */
+/* Cola de ordenes para actuadores. */
 static QueueHandle_t g_actuator_queue;
 
 /* pb del status: cantidad de bytes que entro al parser. */
@@ -47,7 +45,7 @@ static volatile uint32_t g_parser_message_count = 0U;
 /* pe del status: cantidad de errores detectados por el parser. */
 static volatile uint32_t g_parser_error_count = 0U;
 
-/* Tarea corta: mueve bytes desde la cola de ISR hacia la cola del parser. */
+/* Tarea que mueve bytes desde la cola de ISR hacia la cola del parser. */
 static void task_uart_rx(void *args)
 {
     /* Byte recibido desde USART1. */
@@ -56,7 +54,7 @@ static void task_uart_rx(void *args)
     /* No usamos parametros de tarea. */
     (void) args;
 
-    /* Las tareas FreeRTOS suelen ser bucles infinitos. */
+    /* Bucle permanente de la tarea. */
     while (1) {
         /* Esperamos hasta que la ISR deje un byte en la cola. */
         if (xQueueReceive(g_uart_rx_isr_queue, &byte, portMAX_DELAY) == pdPASS) {
@@ -66,7 +64,7 @@ static void task_uart_rx(void *args)
     }
 }
 
-/* Tarea que ejecuta la FSM byte a byte. */
+/* Tarea que ejecuta el parser byte a byte. */
 static void task_parser(void *args)
 {
     /* Byte actual que llega desde task_uart_rx. */
@@ -97,7 +95,7 @@ static void task_parser(void *args)
         /* Contador pb: todo byte que el parser intenta consumir. */
         g_parser_byte_count++;
 
-        /* La FSM decide si falta mas, si hubo error o si hay mensaje listo. */
+        /* El parser decide si falta mas, si hubo error o si hay mensaje listo. */
         result = parser_consume_byte(&parser, byte, &message);
 
         /* Una trama valida se manda a la aplicacion. */
@@ -151,7 +149,7 @@ static void task_app(void *args)
     }
 }
 
-/* Tarea periodica: genera DAT y STS sin que la PC tenga que pedirlos. */
+/* Tarea periodica: genera DAT y STS. */
 static void task_telemetry(void *args)
 {
     /* Tick de referencia para vTaskDelayUntil(). */
@@ -174,7 +172,7 @@ static void task_telemetry(void *args)
             xQueueSend(g_uart_tx_queue, &message, portMAX_DELAY);
         }
 
-        /* Cada STATUS_PERIOD_MS tambien mandamos STS. */
+        /* Cada STATUS_PERIOD_MS tambien enviamos STS. */
         if ((counter % (STATUS_PERIOD_MS / TELEMETRY_PERIOD_MS)) == 0U) {
             app_build_status_message(&message);
             xQueueSend(g_uart_tx_queue, &message, portMAX_DELAY);
@@ -188,7 +186,7 @@ static void task_telemetry(void *args)
     }
 }
 
-/* Tarea que aplica comandos al hardware de actuadores. */
+/* Tarea que aplica comandos a los actuadores. */
 static void task_actuators(void *args)
 {
     /* Orden simple: target="led", action="on/off/toggle". */

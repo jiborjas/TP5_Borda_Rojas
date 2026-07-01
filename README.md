@@ -12,6 +12,12 @@ dentro de `TP5_Borda_Rojas/firmware`, incluidas las third parties:
 
 No hay dependencias a rutas externas del workspace.
 
+## Alcance
+
+El firmware implementa recepcion por UART con parser incremental, comandos de
+aplicacion sobre la Blue Pill, telemetria periodica y mensajes de estado para
+validacion en PC.
+
 ## Estructura
 
 - `firmware/protocol`: codificacion de tramas, checksum, validacion y parser FSM.
@@ -92,13 +98,8 @@ make gdb        # conexion GDB a localhost:3333
 El LED integrado esta en PC13 y es activo en bajo: `led=on` limpia el pin,
 `led=off` lo pone en alto.
 
-## Fuentes usadas
+## Referencias
 
-La solucion toma como base el esqueleto de catedra
-`amet_embebidos_repos/bluepill-freertos-ros2-alumnos`, respeta la arquitectura
-FreeRTOS con colas y tareas, y se contrasto contra los proyectos resueltos
-`TP5_Grapunsky_Mayer` y `TP5_ Iannini_Alegre.pdf`.
-
-Los criterios tecnicos se alinean con la consigna `TPs Sistemas Embebidos/TP5 UART.pdf`,
-el apunte 13 de protocolo serie, el apunte 08 de perifericos STM32F103 y la
-bibliografia RM0008/datasheet STM32F103C8T6.
+La implementacion sigue la consigna `TPs Sistemas Embebidos/TP5 UART.pdf` y se
+apoya en el apunte 13 de protocolo serie, el apunte 08 de perifericos STM32F103
+y la bibliografia RM0008/datasheet STM32F103C8T6.

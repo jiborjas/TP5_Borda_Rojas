@@ -27,6 +27,22 @@ static uint32_t g_rx_count = 0U;
 /* ae del status: errores decididos por la aplicacion. */
 static uint32_t g_error_count = 0U;
 
+/* Mapea payloads LED a la orden que consume actuators.c. */
+typedef struct {
+    const char *payload;
+    const char *action;
+} led_command_map_t;
+
+/* Tabla declarativa con los comandos LED admitidos. */
+static const led_command_map_t g_led_command_map[] = {
+    {"led=on", "on"},
+    {"led=off", "off"},
+    {"led=toggle", "toggle"},
+};
+
+/* Cantidad de entradas en la tabla de comandos LED. */
+static const size_t g_led_command_map_count = sizeof(g_led_command_map) / sizeof(g_led_command_map[0]);
+
 /* Encola una respuesta simple para que task_uart_tx la mande por USART1. */
 static void send_simple_message(QueueHandle_t tx_queue, protocol_type_t type, const char *payload)
 {
@@ -50,28 +66,16 @@ static bool payload_equals(const char *payload, const char *expected)
 /* Convierte payloads led=... en una orden para el modulo de actuadores. */
 static bool build_led_command(const char *payload, actuator_command_t *command)
 {
-    /* led=on enciende el LED integrado de PC13. */
-    if (payload_equals(payload, "led=on")) {
-        strncpy(command->target, "led", sizeof(command->target) - 1U);
-        strncpy(command->action, "on", sizeof(command->action) - 1U);
-        return true;
+    /* Recorremos la tabla de comandos aceptados. */
+    for (size_t i = 0U; i < g_led_command_map_count; i++) {
+        if (payload_equals(payload, g_led_command_map[i].payload)) {
+            strncpy(command->target, "led", sizeof(command->target) - 1U);
+            strncpy(command->action, g_led_command_map[i].action, sizeof(command->action) - 1U);
+            return true;
+        }
     }
 
-    /* led=off apaga el LED integrado de PC13. */
-    if (payload_equals(payload, "led=off")) {
-        strncpy(command->target, "led", sizeof(command->target) - 1U);
-        strncpy(command->action, "off", sizeof(command->action) - 1U);
-        return true;
-    }
-
-    /* led=toggle invierte el estado actual del LED. */
-    if (payload_equals(payload, "led=toggle")) {
-        strncpy(command->target, "led", sizeof(command->target) - 1U);
-        strncpy(command->action, "toggle", sizeof(command->action) - 1U);
-        return true;
-    }
-
-    /* Si no coincide con ningun comando LED, la app seguira probando otros comandos. */
+    /* Si no coincide, la app prueba el resto de comandos. */
     return false;
 }
 

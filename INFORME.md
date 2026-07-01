@@ -8,6 +8,11 @@ FreeRTOS, pasa por un parser incremental y llega a la aplicacion como mensajes
 validados. La transmision toma mensajes logicos y los serializa con longitud y
 checksum correctos.
 
+## Alcance
+
+La entrega cubre framing, checksum, parser incremental, despachos de comando,
+telemetria periodica y mensajes de estado para validacion desde PC.
+
 ## Implementacion
 
 Etapa 1:
@@ -33,7 +38,7 @@ Etapa 3:
 - Comandos desconocidos devuelven `ERR:code=unknown_cmd`.
 - Tipos distintos de `CMD` devuelven `ERR:code=unexpected_type`.
 
-## Evidencia reproducible
+## Evidencia
 
 La evidencia de PC esta en:
 
@@ -61,7 +66,7 @@ Casos verificados por tests:
 - resincronizacion con `@0@08:CMD:ping:52\n`
 - dos tramas pegadas
 
-## Preguntas etapa 1
+## Etapa 1
 
 1. `LL` cuenta solo `TTT:PAYLOAD` porque ese es el cuerpo que el receptor debe
    acumular antes de esperar el checksum. Si incluyera `@`, separadores externos,
@@ -70,14 +75,13 @@ Casos verificados por tests:
 
 2. Si se calcula el checksum incluyendo `@`, el valor cambia para `ping`.
    `08:CMD:ping` da `0x52`; `@08:CMD:ping` da `0x12` porque `0x52 XOR 0x40 =
-   0x12`. No funcionaria con el bridge de la catedra, que recalcula el checksum
-   sin `@`.
+   0x12`. No coincide con el recalculo que usa el bridge.
 
 3. `protocol_validate()` busca el ultimo `:` porque el payload puede contener
    `:`. Si buscara el primero, separaria despues de `LL` y confundiria casi toda
    la trama con el checksum. El ultimo separador es el unico que delimita `CC`.
 
-## Preguntas etapa 2
+## Etapa 2
 
 1. El parser debe ser incremental porque UART entrega un flujo de bytes, no
    mensajes atomicos. Leer una linea completa falla si llegan dos tramas pegadas,
@@ -93,7 +97,7 @@ Casos verificados por tests:
    `EXPECT_LEN_SEPARATOR`, `READ_BODY`, `EXPECT_CHECK_SEPARATOR`,
    `READ_CHECK_HI`, `READ_CHECK_LO` y `EXPECT_END` sin necesitar delays.
 
-## Preguntas etapa 3
+## Etapa 3
 
 1. Los contadores internos muestran comportamiento de software: mensajes
    validos, errores de aplicacion, errores del parser y descartes de cola. Los
@@ -110,7 +114,7 @@ Casos verificados por tests:
    recibido. Es `STS` y no `ACK` porque no solo confirma el comando: transporta
    estado diagnostico del firmware.
 
-## Preguntas de cierre
+## Cierre
 
 1. XOR detecta cambios de un bit y muchos errores simples, pero no todos. Si dos
    bytes se intercambian, el XOR no cambia porque la operacion es conmutativa.
