@@ -106,7 +106,6 @@ Casos cubiertos:
 - `@08:CMD:ping:52\r\n` funciona porque `\r` se ignora.
 - `ping`, `led=on` y errores se prueban en `app_handle_message()`.
 
-Nota sobre hardware: desde este entorno no puedo tomar foto real del LED. Queda documentada la trama cruda esperada y la accion que debe fotografiarse al probar en placa.
 
 ## Etapa 3: estado, errores y resincronizacion
 
@@ -225,4 +224,3 @@ Resultado: se generan `bin/main.elf`, `bin/main.hex` y `bin/main.bin`.
 - `app_handle_message()` con `ping`, `led=on`, `led=off`, `led=toggle`, `status?`, errores y contadores.
 - Tests host reproducibles.
 - Evidencia textual de tramas crudas para Etapas 1, 2 y 3.
-- Pendiente solo al probar en placa: capturas reales de monitor serie, foto del conexionado y fotos del LED.

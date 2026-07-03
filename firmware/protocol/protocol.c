@@ -159,6 +159,8 @@ uint8_t protocol_compute_checksum(const char *data, size_t length)
     return checksum;
 }
 
+
+// Armamos el frame completo: '@', LL, TTT, PAYLOAD, CC y '\n'.
 bool protocol_encode_frame(const protocol_message_t *message, char *frame, size_t frame_size, size_t *frame_length)
 {
     const char *type_text;
@@ -167,7 +169,7 @@ bool protocol_encode_frame(const protocol_message_t *message, char *frame, size_
     size_t checksum_input_length;
     size_t required_length;
     uint8_t checksum;
-    int written;
+    int written;    //Indica el tamaño del buffer que snprintf intentó escribir (sin contar el \0 final)
     char checksum_input[3U + 1U + PROTOCOL_MAX_BODY_SIZE + 1U];
 
     /*
@@ -211,11 +213,12 @@ bool protocol_encode_frame(const protocol_message_t *message, char *frame, size_
     checksum_input[1] = nibble_to_hex((uint8_t) body_length);
     checksum_input[2] = PROTOCOL_SEPARATOR_CHAR;
 
+    // En este bloque, written representa el largo de la cadena TTT:PAYLOAD. 
     written = snprintf(&checksum_input[3], sizeof(checksum_input) - 3U,
                        "%s:%s", type_text, message->payload);
     if ((written < 0) || ((size_t) written != body_length)) {
         return false;
-    }
+    } // confirmamos que el cuerpo se grabó completo en el buffer
 
     /*
      * Con "LL:TTT:PAYLOAD" ya armado, calculamos CC. Recién al final agregamos

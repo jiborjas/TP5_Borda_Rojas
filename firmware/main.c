@@ -11,7 +11,7 @@ int main(void)
 {
     rcc_clock_setup_pll(&rcc_hse_configs[RCC_CLOCK_HSE8_72MHZ]);
 
-    system_init_board();
+    system_init_board();    //peripheral clock enable
     actuators_init();
     sensors_init();
     uart_comm_init();

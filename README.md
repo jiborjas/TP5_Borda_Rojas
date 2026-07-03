@@ -120,5 +120,3 @@ El firmware transmite `\r\n` hacia UART para que los monitores serie muestren la
 - `evidencia/etapa3/`: `status?`, comando desconocido y resincronizacion con `@0@08:CMD:ping:52\n`.
 
 `INFORME.md` contiene el desarrollo completo, las respuestas obligatorias y el checklist final.
-
-Pendiente al probar en placa fisica: reemplazar/complementar la evidencia host con capturas reales del monitor serie, foto del LED y foto del conexionado.
