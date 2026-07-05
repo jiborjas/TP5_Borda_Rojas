@@ -12,12 +12,16 @@
 #include "../drivers/uart_comm.h"
 #include "../protocol/protocol.h"
 
+
+//Las variables serán globales pero sólo dentro del dominio de este archivo.
 static uint32_t g_rx_count = 0U;
 static uint32_t g_error_count = 0U;
 
+
+// Carga un mensaje a la cola para impresión por UART.
 static void send_simple_message(QueueHandle_t tx_queue, protocol_type_t type, const char *payload)
 {
-    protocol_message_t message;
+    protocol_message_t message; //defino un message que se inicializa en protocol_message_set
 
     /*
      * Las respuestas no se mandan directo por UART desde la aplicacion. Se
@@ -27,15 +31,18 @@ static void send_simple_message(QueueHandle_t tx_queue, protocol_type_t type, co
      */
     if (protocol_message_set(&message, type, payload)) {
         xQueueSend(tx_queue, &message, portMAX_DELAY);
-    }
+    }   //Cargo el mensaje a la cola para impresión por UART.
 }
 
+
+// Para que las comparaciones de payloads sean legibles
 static bool payload_equals(const char *payload, const char *expected)
 {
-    /* Pequeño helper para que las comparaciones de comandos sean legibles. */
     return strcmp(payload, expected) == 0;
 }
 
+
+// Transforma el par target/action de actuators.c en un payload de texto que la aplicacion entiende.
 static bool build_led_command(const char *payload, actuator_command_t *command)
 {
     /*
@@ -64,21 +71,25 @@ static bool build_led_command(const char *payload, actuator_command_t *command)
     return false;
 }
 
+
+//reinicia los contadores
 void app_init(void)
 {
     g_rx_count = 0U;
     g_error_count = 0U;
 }
 
+
+// La bluepill sólo recibe payloads de tipo CMD y responde con ACK, STS o ERR.
 void app_handle_message(const protocol_message_t *message, QueueHandle_t tx_queue, QueueHandle_t actuator_queue)
 {
     actuator_command_t command = {0};
 
     if ((message == NULL) || (tx_queue == NULL) || (actuator_queue == NULL)) {
         return;
-    }
+    }	//Verifica que los punteros sean coherentes
 
-    g_rx_count++;
+    g_rx_count++;	//Contabiliza la recepción de un mensaje
 
     /*
      * Por consigna, la Blue Pill solo acepta comandos entrantes de tipo CMD.
@@ -124,13 +135,15 @@ void app_handle_message(const protocol_message_t *message, QueueHandle_t tx_queu
     g_error_count++;
 }
 
+
+// Construye un mensaje para transmitir desde la bluepill.
 bool app_build_telemetry_message(protocol_message_t *message, uint32_t sequence)
 {
     char payload[PROTOCOL_MAX_PAYLOAD_LENGTH + 1U];
 
     if (message == NULL) {
         return false;
-    }
+    }	//verifica que el puntero message sea coherente
 
     if (!sensors_build_telemetry_payload(payload, sizeof(payload), sequence)) {
         return false;
@@ -139,6 +152,9 @@ bool app_build_telemetry_message(protocol_message_t *message, uint32_t sequence)
     return protocol_message_set(message, PROTOCOL_TYPE_DAT, payload);
 }
 
+
+// Construye un mensaje de estado para transmitir desde la bluepill.
+// Incluye rx, ae, irq, pb, pm, pe y qd. Sirve para diagnosticar fallas.
 void app_build_status_message(protocol_message_t *message)
 {
     char payload[PROTOCOL_MAX_PAYLOAD_LENGTH + 1U];
@@ -165,5 +181,6 @@ void app_build_status_message(protocol_message_t *message)
               (unsigned long) tasks_get_parser_message_count(),
               (unsigned long) tasks_get_parser_error_count(),
               (unsigned long) uart_comm_get_rx_drop_count());
+			  
     (void) protocol_message_set(message, PROTOCOL_TYPE_STS, payload);
 }

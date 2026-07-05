@@ -79,6 +79,8 @@ protocol_type_t protocol_type_from_text(const char *text)
     return PROTOCOL_TYPE_INVALID;
 }
 
+
+// Carga un mensaje con los datos a enviar: Type, payload y length.
 bool protocol_message_set(protocol_message_t *message, protocol_type_t type, const char *payload)
 {
     size_t payload_length;
