@@ -98,6 +98,9 @@ void parser_init(parser_t *parser)
     parser_reset(parser);
 }
 
+
+//Cicla la máquina de estados según el byte recibido y el que espera recibir luego.
+//Entrega el estado de la trama: incompleta, lista o error.
 parser_result_t parser_consume_byte(parser_t *parser, uint8_t byte, protocol_message_t *message)
 {
     int8_t nibble;

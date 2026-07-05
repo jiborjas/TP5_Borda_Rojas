@@ -17,8 +17,8 @@ int main(void)
     uart_comm_init();
     app_init();
 
-    tasks_start();
+    tasks_start();  //El scheduler toma el control y nunca retorna
 
-    for (;;) {
+    for (;;) {  //Si falla, el sistema entra en un bucle infinito
     }
 }
