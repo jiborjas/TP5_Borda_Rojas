@@ -224,3 +224,6 @@ Resultado: se generan `bin/main.elf`, `bin/main.hex` y `bin/main.bin`.
 - `app_handle_message()` con `ping`, `led=on`, `led=off`, `led=toggle`, `status?`, errores y contadores.
 - Tests host reproducibles.
 - Evidencia textual de tramas crudas para Etapas 1, 2 y 3.
+
+## Diagrama de flujos
+![Diagrama de flujos](SE_TP5_Flujos.png)

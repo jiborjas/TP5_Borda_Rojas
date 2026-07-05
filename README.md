@@ -120,3 +120,6 @@ El firmware transmite `\r\n` hacia UART para que los monitores serie muestren la
 - `evidencia/etapa3/`: `status?`, comando desconocido y resincronizacion con `@0@08:CMD:ping:52\n`.
 
 `INFORME.md` contiene el desarrollo completo, las respuestas obligatorias y el checklist final.
+
+## Diagrama de flujos
+![Diagrama de flujos](SE_TP5_Flujos.png)
