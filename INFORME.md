@@ -181,42 +181,6 @@ make
 
 Resultado: se generan `bin/main.elf`, `bin/main.hex` y `bin/main.bin`.
 
-## Preguntas obligatorias
-
-### Etapa 1
-
-1. `LL` cuenta solamente `TTT:PAYLOAD` porque ese es el cuerpo que el receptor necesita acumular antes de buscar el checksum. Si incluyera `@`, separadores externos, `CC` y `\n`, el parser tendria que conocer el largo de campos que justamente sirven para encontrar los limites de la trama. No aporta informacion y complica el parsing.
-
-2. Si se incluye `@` en el XOR, el checksum cambia porque `@` vale `0x40`. Para `08:CMD:ping`, el checksum correcto es `0x52`. Si se calcula sobre `@08:CMD:ping`, da `0x12` porque `0x52 ^ 0x40 = 0x12`. No funcionaria con el bridge de la catedra, porque el bridge espera el checksum definido por protocolo, sin la arroba.
-
-3. No conviene buscar el primer `:` para separar checksum, porque la trama tiene varios separadores. Ademas, el payload podria contener `:` si se extendiera el protocolo o si se enviara texto con separadores. Buscar el ultimo `:` permite separar correctamente `CC` del resto de la trama.
-
-### Etapa 2
-
-1. El parser debe ser incremental porque la UART entrega bytes, no mensajes completos. Leer una linea completa fallaria si llega ruido antes de `@`, si se pierde el `\n`, si llegan dos tramas pegadas, o si el buffer de linea queda esperando indefinidamente por una trama incompleta.
-
-2. Si `\r` no se ignorara, en una terminal que manda `\r\n` el parser llegaria a `EXPECT_END` esperando `\n`, recibiria `\r` y marcaria error. Ignorarlo permite aceptar tanto `\n` como cierre real y `\r\n` como formato tipico de monitor serie.
-
-3. Si llegan `@08:CMD:ping:52\n@0A:CMD:led=on:6A\n`, al terminar la primera el parser vuelve a `WAIT_START`. El siguiente byte ya es `@`, entonces recorre: `WAIT_START -> READ_LEN_HI -> READ_LEN_LO -> EXPECT_LEN_SEPARATOR -> READ_BODY -> EXPECT_CHECK_SEPARATOR -> READ_CHECK_HI -> READ_CHECK_LO -> EXPECT_END`. No hace falta delay porque cada byte se procesa en orden y el estado se reinicia al entregar la primera trama.
-
-### Etapa 3
-
-1. Conviene reportar contadores porque describen el comportamiento del software, no solo el estado instantaneo del hardware. Un registro USART puede decir si hay un byte pendiente o si hubo overrun, pero no dice cuantos mensajes validos se parsearon, cuantos errores de aplicacion hubo, cuantos bytes se descartaron por cola llena ni si la aplicacion esta recibiendo comandos.
-
-2. En `@0@08:CMD:ping:52\n`, sin reutilizar la segunda `@`, el parser haria: primer `@` inicia, `0` se lee como primer digito de longitud, segundo `@` causa error en `READ_LEN_LO` y se descarta. Luego seguirian `0`, `8`, `:`, etc. en `WAIT_START`, pero como ya se perdio la arroba real, no se detecta nueva trama. Entregaria 0 mensajes. Con reutilizacion, entrega 1 mensaje: `CMD:ping`.
-
-3. Si el bridge recibe una trama `STS`, publica en el topico de estado, normalmente `bridge/status`, con el payload `rx=5,ae=2,...`. Es `STS` y no `ACK` porque no confirma solamente que el comando fue recibido: transporta informacion de diagnostico del firmware.
-
-### Cierre
-
-1. El XOR detecta muchos errores simples, por ejemplo un bit cambiado o un byte cambiado. No detecta todos los errores: si se alteran dos bytes con cambios que se cancelan en XOR, el checksum queda igual. Si se intercambian dos bytes del cuerpo sin modificar sus valores, XOR no lo detecta porque XOR es conmutativo. Para mayor robustez usaria CRC-8 o CRC-16 manteniendo la misma estructura textual del campo `CC` o ampliandolo si hiciera falta.
-
-2. A 115200 baud 8N1, cada caracter usa 10 bits: 1 start, 8 datos, 1 stop. Una trama de 64 caracteres usa 640 bits. Tiempo = 640 / 115200 = 0,00556 s = 5,56 ms. Si `LL` dice `FF`, este firmware lo rechaza porque supera `PROTOCOL_MAX_BODY_SIZE`; vuelve a esperar una nueva trama. Si un parser aceptara `FF`, quedaria esperando hasta completar 255 bytes o hasta que aparezca un error/resincronizacion. No deberia ocurrir si el emisor respeta el maximo de trama.
-
-3. Para `###@08:CMD:ping:52\n`: en `WAIT_START` se ignoran los tres `#`; con `@` pasa a `READ_LEN_HI`; `0` a `READ_LEN_LO`; `8` a `EXPECT_LEN_SEPARATOR`; `:` a `READ_BODY`; consume `CMD:ping`; `:` a `READ_CHECK_HI`; `5` a `READ_CHECK_LO`; `2` a `EXPECT_END`; `\n` valida y entrega 1 mensaje. La diferencia con `@0@08...` es que ahi la basura empieza como una trama parcial y requiere resincronizar reutilizando la segunda arroba.
-
-4. No es seguro conectar directamente PA10 a un TX de adaptador USB-UART de 5 V: el STM32F103 trabaja a 3,3 V y se puede danar o estresar el pin. Usaria un adaptador TTL de 3,3 V o un conversor de nivel/resistencias adecuadas. Esto afecta al hardware electrico, no al protocolo: las tramas y checksums son iguales si los niveles llegan correctamente.
-
 ## Checklist de entrega
 
 - Codigo de framing/checksum completo.

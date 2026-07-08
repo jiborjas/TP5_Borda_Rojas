@@ -199,7 +199,7 @@ void tasks_start(void)
     xTaskCreate(task_uart_rx, "uart_rx", 160, NULL, 3, NULL);
     xTaskCreate(task_parser, "parser", 192, NULL, 3, NULL);
     xTaskCreate(task_app, "app", 192, NULL, 2, NULL);
-    xTaskCreate(task_telemetry, "telemetry", 192, NULL, 2, NULL);
+//    xTaskCreate(task_telemetry, "telemetry", 192, NULL, 2, NULL);
     xTaskCreate(task_actuators, "actuators", 160, NULL, 2, NULL);
     xTaskCreate(task_uart_tx, "uart_tx", 192, NULL, 2, NULL);
 
