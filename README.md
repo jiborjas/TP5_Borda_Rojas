@@ -122,4 +122,4 @@ El firmware transmite `\r\n` hacia UART para que los monitores serie muestren la
 `INFORME.md` contiene el desarrollo completo, las respuestas obligatorias y el checklist final.
 
 ## Diagrama de flujos
-![Diagrama de flujos](SE_TP5_Flujos.png)
+![Diagrama de flujos](diagramas/SE_TP5_Flujos.png)
